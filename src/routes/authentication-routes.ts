@@ -43,33 +43,33 @@ authenticationroutes.post("/sign-in", async (context) => {
   }
 });
 
-// authenticationroutes.post("/log-in", async (context) => {
-//   try {
-//     const { username, password } = await context.req.json();
+authenticationroutes.post("/log-in", async (context) => {
+  try {
+    const { username, password } = await context.req.json();
 
-//     const result = await logInWithUsernameAndPassword({
-//       username,
-//       password,
-//     });
-//     return context.json({
-//       data: result,
-//     });
-//   } catch (e) {
-//     if (
-//       e === LogInWtihUsernameAndPasswordError.INCORRECT_USERNAME_OR_PASSWORD
-//     ) {
-//       return context.json(
-//         {
-//           message: "Incorrect username or password",
-//         },
-//         401
-//       );
-//     }
-//     return context.json(
-//       {
-//         mesage: "Unkown",
-//       },
-//       500
-//     );
-//   }
-// });
+    const result = await logInWithUsernameAndPassword({
+      username,
+      password,
+    });
+    return context.json({
+      data: result,
+    });
+  } catch (e) {
+    if (
+      e === LogInWtihUsernameAndPasswordError.INCORRECT_USERNAME_OR_PASSWORD
+    ) {
+      return context.json(
+        {
+          message: "Incorrect username or password",
+        },
+        401
+      );
+    }
+    return context.json(
+      {
+        mesage: "Unkown",
+      },
+      500
+    );
+  }
+});
