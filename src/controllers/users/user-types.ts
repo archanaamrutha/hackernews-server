@@ -8,9 +8,10 @@ export enum GetMeError {
   BAD_REQUEST,
 }
 
-// export type usersResult = {
-//   users: Array<User>;
-// };
-// export enum usersError {
-//   BAD_REQUEST,
-// }
+export type usersResult = {
+  users: Array<User>;
+  total: number;
+};
+export enum usersError {
+  BAD_REQUEST,
+}

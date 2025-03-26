@@ -2,9 +2,9 @@ import type { User } from "@prisma/client";
 import { prismaClient } from "../../extras/prisma.js";
 import {
   GetMeError,
-  
+  usersError,
   type GetMeResult,
-  
+  type usersResult,
 } from "./user-types.js";
 
 export const getMe = async (parameters: {
@@ -25,12 +25,22 @@ export const getMe = async (parameters: {
   };
 };
 
-// export const getAllUsers = async (): Promise<usersResult> => {
-//   const users = await prismaClient.user.findMany();
-//   if (!users) {
-//     throw usersError.BAD_REQUEST;
-//   }
-//   return {
-//     users,
-//   };
-// };
+export const getAllUsers = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<usersResult> => {
+  const users = await prismaClient.user.findMany({
+    orderBy: {
+      name: "asc",
+    },
+    skip: (page - 1) * limit,
+    take: limit,
+  });
+
+  const totalUsers = await prismaClient.user.count();
+
+  return {
+    users,
+    total: totalUsers,
+  };
+};

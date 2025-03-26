@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { prismaClient } from "../extras/prisma.js";
 import { tokenMiddleware } from "./middlewares/token-middlewares.js";
-import { getMe } from "../controllers/users/user-controller.js";
+import { getAllUsers, getMe } from "../controllers/users/user-controller.js";
 import { GetMeError } from "../controllers/users/user-types.js";
 
 export const usersRoutes = new Hono();
@@ -39,11 +39,25 @@ usersRoutes.get("/me", tokenMiddleware, async (context) => {
   }
 });
 
-// usersRoutes.get("/users", tokenMiddleware, async (context) => {
-//   try {
-//     const users = await getAllUsers();
-//     return context.json(users, 200);
-//   } catch (e) {
-//     return context.json({ message: e }, 404);
-//   }
-// });
+usersRoutes.get("/getAllusers", tokenMiddleware, async (context) => {
+  const page = Number(context.req.query("page") || 1);
+  const limit = Number(context.req.query("limit") || 10);
+  try {
+    const result = await getAllUsers(page, limit);
+
+    return context.json(
+      {
+        data: result.users,
+        pagination: {
+          page,
+          limit,
+          total: result.total,
+          totalPages: Math.ceil(result.total / limit),
+        },
+      },
+      200
+    );
+  } catch (e) {
+    return context.json({ message: e }, 404);
+  }
+});
