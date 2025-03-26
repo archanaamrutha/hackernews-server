@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { authenticationroutes } from "./authentication-routes.js";
+import { usersRoutes } from "./user-routes.js";
 export const allroutes = new Hono();
 
 allroutes.get("/health", async (context) => {
@@ -12,3 +13,4 @@ allroutes.get("/health", async (context) => {
 });
 
 allroutes.route("/auth", authenticationroutes);
+allroutes.route("/users", usersRoutes);
