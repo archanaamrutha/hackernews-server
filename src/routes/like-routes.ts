@@ -3,10 +3,12 @@ import { tokenMiddleware } from "./middlewares/token-middlewares.js";
 import {
   likePost,
   getLikePosts,
+  deleteLikes,
 } from "../controllers/likes/like-controller.js";
 import {
   LikePostError,
   GetLikePostError,
+  DeleteLikeError,
 } from "../controllers/likes/like-type.js";
 
 export const likeRoutes = new Hono();
@@ -102,6 +104,52 @@ likeRoutes.get("/on/:postId", tokenMiddleware, async (context) => {
     return context.json(
       {
         message: "Internal Server Error",
+      },
+      500
+    );
+  }
+});
+
+likeRoutes.delete("/deletelike/:postId", tokenMiddleware, async (context) => {
+  const userId = context.get("userId");
+  const postId = String(await context.req.param("postId"));
+
+  try {
+    const response = await deleteLikes({
+      userId,
+      postId,
+    });
+
+    return context.json(response, 200);
+  } catch (e) {
+    if (e === DeleteLikeError.NOT_FOUND) {
+      return context.json(
+        {
+          message: "Post is not found",
+        },
+        400
+      );
+    }
+    if (e === DeleteLikeError.UNAUTHORIZED) {
+      return context.json(
+        {
+          message: "User is not found",
+        },
+        400
+      );
+    }
+
+    if (e === DeleteLikeError.LIKE_NOT_FOUND) {
+      return context.json(
+        {
+          message: "Like on the post is not found",
+        },
+        400
+      );
+    }
+    return context.json(
+      {
+        message: "Internal server error",
       },
       500
     );

@@ -4,6 +4,7 @@ import {
   LikePostError,
   type GetLikePost,
   GetLikePostError,
+  DeleteLikeError,
 } from "./like-type.js";
 
 export const likePost = async (parameters: {
@@ -82,5 +83,49 @@ export const getLikePosts = async (parameters: {
   return {
     likes,
     total: totallikes,
+  };
+};
+
+export const deleteLikes = async (parameters: {
+  userId: string;
+  postId: string;
+}) => {
+  const user = await prismaClient.user.findUnique({
+    where: {
+      id: parameters.userId,
+    },
+  });
+
+  if (!user) {
+    throw DeleteLikeError.UNAUTHORIZED;
+  }
+  const post = await prismaClient.post.findUnique({
+    where: {
+      id: parameters.postId,
+    },
+  });
+
+  if (!post) {
+    return DeleteLikeError.NOT_FOUND;
+  }
+
+  const existinglike = await prismaClient.like.findFirst({
+    where: {
+      userId: parameters.userId,
+      postId: parameters.postId,
+    },
+  });
+
+  if (!existinglike) {
+    throw DeleteLikeError.LIKE_NOT_FOUND;
+  }
+
+  await prismaClient.like.delete({
+    where: {
+      id: existinglike.id,
+    },
+  });
+  return {
+    message: "Like on the given post deleted suceesfully",
   };
 };
