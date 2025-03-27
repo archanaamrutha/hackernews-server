@@ -1,7 +1,13 @@
 import { Hono } from "hono";
 import { tokenMiddleware } from "./middlewares/token-middlewares.js";
-import { createPost } from "../controllers/posts/post-controller.js";
-import { CreatePostError } from "../controllers/posts/post-types.js";
+import {
+  createPost,
+  getAllPosts,
+} from "../controllers/posts/post-controller.js";
+import {
+  CreatePostError,
+  GetPostError,
+} from "../controllers/posts/post-types.js";
 
 export const postRoutes = new Hono();
 
@@ -44,5 +50,28 @@ postRoutes.post("/create-post", tokenMiddleware, async (context) => {
       },
       500
     );
+  }
+});
+
+postRoutes.get("/getAllposts", tokenMiddleware, async (context) => {
+  const page = Number(context.req.query("page") || 1);
+  const limit = Number(context.req.query("limit") || 10);
+  try {
+    const result = await getAllPosts(page, limit);
+
+    return context.json(
+      {
+        data: result.posts,
+        pagination: {
+          page,
+          limit,
+          total: result.total,
+          totalPages: Math.ceil(result.total / limit),
+        },
+      },
+      200
+    );
+  } catch (e) {
+    return context.json({ message: e }, 404);
   }
 });

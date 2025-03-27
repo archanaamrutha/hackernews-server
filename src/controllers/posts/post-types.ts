@@ -12,3 +12,11 @@ export enum CreatePostError {
   BAD_REQUEST,
   UNAUTHORIZED,
 }
+
+export type GetPostResults = {
+  posts: Array<Post>;
+  total: number;
+};
+export enum GetPostError {
+  BAD_REQUEST,
+}
