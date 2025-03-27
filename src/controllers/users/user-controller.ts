@@ -37,6 +37,9 @@ export const getAllUsers = async (
     take: limit,
   });
 
+  if (!users) {
+    throw usersError.BAD_REQUEST;
+  }
   const totalUsers = await prismaClient.user.count();
 
   return {
