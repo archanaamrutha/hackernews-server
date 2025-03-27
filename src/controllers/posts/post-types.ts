@@ -20,3 +20,12 @@ export type GetPostResults = {
 export enum GetPostError {
   BAD_REQUEST,
 }
+
+export type GetMePostResult = {
+  posts: Array<Post>;
+  total: number;
+};
+
+export enum GetMePostError {
+  BAD_REQUEST,
+}

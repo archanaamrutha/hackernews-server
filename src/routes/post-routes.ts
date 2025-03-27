@@ -3,10 +3,12 @@ import { tokenMiddleware } from "./middlewares/token-middlewares.js";
 import {
   createPost,
   getAllPosts,
+  getMePost,
 } from "../controllers/posts/post-controller.js";
 import {
   CreatePostError,
   GetPostError,
+  GetMePostError,
 } from "../controllers/posts/post-types.js";
 
 export const postRoutes = new Hono();
@@ -73,5 +75,48 @@ postRoutes.get("/getAllposts", tokenMiddleware, async (context) => {
     );
   } catch (e) {
     return context.json({ message: e }, 404);
+  }
+});
+
+postRoutes.get("/meposts", tokenMiddleware, async (context) => {
+  const userId = context.get("userId");
+  const page = Number(context.req.query("page") || 1);
+  const limit = Number(context.req.query("limit") || 10);
+
+  try {
+    const result = await getMePost({
+      userId,
+      page,
+      limit,
+    });
+
+    return context.json(
+      {
+        data: result.posts,
+        pagination: {
+          page,
+          limit,
+          total: result.total,
+          totalPages: Math.ceil(result.total / limit),
+        },
+      },
+      200
+    );
+  } catch (e) {
+    if (e === GetMePostError.BAD_REQUEST) {
+      return context.json(
+        {
+          error: "User with given id does not have post",
+        },
+        400
+      );
+    }
+
+    return context.json(
+      {
+        message: "Internal Server Error",
+      },
+      500
+    );
   }
 });

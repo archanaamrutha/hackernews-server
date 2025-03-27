@@ -6,6 +6,8 @@ import {
   type GetPostResults,
   CreatePostError,
   GetPostError,
+  type GetMePostResult,
+  GetMePostError,
 } from "./post-types.js";
 
 export const createPost = async (parameters: {
@@ -43,6 +45,33 @@ export const getAllPosts = async (
 
   if (!posts) {
     throw GetPostError.BAD_REQUEST;
+  }
+  const totalPosts = await prismaClient.post.count();
+
+  return {
+    posts,
+    total: totalPosts,
+  };
+};
+
+export const getMePost = async (parameters: {
+  userId: string;
+  page: number;
+  limit: number;
+}): Promise<GetMePostResult> => {
+  const posts = await prismaClient.post.findMany({
+    where: {
+      userId: parameters.userId,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+    skip: (parameters.page - 1) * parameters.limit,
+    take: parameters.limit,
+  });
+
+  if (!posts) {
+    throw GetMePostError.BAD_REQUEST;
   }
   const totalPosts = await prismaClient.post.count();
 
