@@ -8,6 +8,7 @@ import {
   GetPostError,
   type GetMePostResult,
   GetMePostError,
+  DeletePostError,
 } from "./post-types.js";
 
 export const createPost = async (parameters: {
@@ -78,5 +79,38 @@ export const getMePost = async (parameters: {
   return {
     posts,
     total: totalPosts,
+  };
+};
+
+export const deletePost = async (parameters: {
+  userId: string;
+  postId: string;
+}) => {
+  const user = await prismaClient.user.findUnique({
+    where: {
+      id: parameters.userId,
+    },
+  });
+
+  if (!user) {
+    throw DeletePostError.UNAUTHORIZED;
+  }
+  const post = await prismaClient.post.findUnique({
+    where: {
+      id: parameters.postId,
+    },
+  });
+
+  if (!post) {
+    return DeletePostError.NOT_FOUND;
+  }
+
+  await prismaClient.post.delete({
+    where: {
+      id: parameters.postId,
+    },
+  });
+  return {
+    message: "Post deleted suceesfully",
   };
 };

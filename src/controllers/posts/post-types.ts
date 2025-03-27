@@ -29,3 +29,8 @@ export type GetMePostResult = {
 export enum GetMePostError {
   BAD_REQUEST,
 }
+
+export enum DeletePostError {
+  NOT_FOUND,
+  UNAUTHORIZED,
+}

@@ -4,11 +4,13 @@ import {
   createPost,
   getAllPosts,
   getMePost,
+  deletePost,
 } from "../controllers/posts/post-controller.js";
 import {
   CreatePostError,
   GetPostError,
   GetMePostError,
+  DeletePostError,
 } from "../controllers/posts/post-types.js";
 
 export const postRoutes = new Hono();
@@ -115,6 +117,44 @@ postRoutes.get("/meposts", tokenMiddleware, async (context) => {
     return context.json(
       {
         message: "Internal Server Error",
+      },
+      500
+    );
+  }
+});
+
+postRoutes.delete("/deletepost/:postId", tokenMiddleware, async (context) => {
+  const userId = context.get("userId");
+
+  const postId = String(await context.req.param("postId"));
+
+  try {
+    const response = await deletePost({
+      userId,
+      postId,
+    });
+
+    return context.json(response, 200);
+  } catch (e) {
+    if (e === DeletePostError.NOT_FOUND) {
+      return context.json(
+        {
+          message: "Post is not found",
+        },
+        400
+      );
+    }
+    if (e === DeletePostError.UNAUTHORIZED) {
+      return context.json(
+        {
+          message: "User is not found",
+        },
+        400
+      );
+    }
+    return context.json(
+      {
+        message: "Internal server error",
       },
       500
     );
