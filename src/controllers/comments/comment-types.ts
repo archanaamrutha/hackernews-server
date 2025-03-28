@@ -8,3 +8,12 @@ export enum CommentPostError {
 export type CommentPostResult = {
   comment: Comment;
 };
+
+export type GetCommentPost = {
+  comments: Array<Comment>;
+  total: number;
+};
+export enum GetCommentPostError {
+  BAD_REQUEST,
+  UNAUTHORIZED,
+}
