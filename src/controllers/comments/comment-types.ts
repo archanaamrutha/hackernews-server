@@ -22,3 +22,12 @@ export enum DeleteCommentError {
   NOT_FOUND,
   UNAUTHORIZED,
 }
+
+export type UpdateCommet = {
+  comment: Comment;
+};
+
+export enum UpdateCommetError {
+  NOT_FOUND,
+  UNAUTHORIZED,
+}

@@ -5,6 +5,8 @@ import {
   type GetCommentPost,
   GetCommentPostError,
   DeleteCommentError,
+  type UpdateCommet,
+  UpdateCommetError,
 } from "./comment-types.js";
 
 export const commentPost = async (parameters: {
@@ -111,5 +113,43 @@ export const deleteComment = async (parameters: {
 
   return {
     message: "Comment deleted successfully!!!",
+  };
+};
+
+export const updateCommentById = async (parameters: {
+  userId: string;
+  commentId: string;
+  content: string;
+}): Promise<UpdateCommet> => {
+  const user = await prismaClient.user.findUnique({
+    where: {
+      id: parameters.userId,
+    },
+  });
+
+  if (!user) {
+    throw UpdateCommetError.UNAUTHORIZED;
+  }
+
+  const comment = await prismaClient.comment.findUnique({
+    where: {
+      id: parameters.commentId,
+    },
+  });
+
+  if (!comment) {
+    throw UpdateCommetError.NOT_FOUND;
+  }
+
+  const result = await prismaClient.comment.update({
+    where: {
+      id: parameters.commentId,
+    },
+    data: {
+      content: parameters.content,
+    },
+  });
+  return {
+    comment: result,
   };
 };
