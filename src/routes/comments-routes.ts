@@ -3,10 +3,12 @@ import { tokenMiddleware } from "./middlewares/token-middlewares.js";
 import {
   commentPost,
   getCommentPosts,
+  deleteComment,
 } from "../controllers/comments/comment-controller.js";
 import {
   CommentPostError,
   GetCommentPostError,
+  DeleteCommentError,
 } from "../controllers/comments/comment-types.js";
 
 export const commentRoutes = new Hono();
@@ -97,6 +99,42 @@ commentRoutes.get("/on/:postId", tokenMiddleware, async (context) => {
     return context.json(
       {
         message: "Internal Server Error",
+      },
+      500
+    );
+  }
+});
+
+commentRoutes.delete("/:commentId", tokenMiddleware, async (context) => {
+  const userId = context.get("userId");
+  const commentId = String(await context.req.param("commentId"));
+
+  try {
+    const result = await deleteComment({
+      userId,
+      commentId,
+    });
+    return context.json(result, 200);
+  } catch (e) {
+    if (e === DeleteCommentError.UNAUTHORIZED) {
+      return context.json(
+        {
+          message: "User with the token does not exists",
+        },
+        400
+      );
+    }
+    if (e === DeleteCommentError.NOT_FOUND) {
+      return context.json(
+        {
+          message: "Comment with given id not found",
+        },
+        404
+      );
+    }
+    return context.json(
+      {
+        message: "Internal Server error",
       },
       500
     );

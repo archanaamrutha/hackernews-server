@@ -17,3 +17,8 @@ export enum GetCommentPostError {
   BAD_REQUEST,
   UNAUTHORIZED,
 }
+
+export enum DeleteCommentError {
+  NOT_FOUND,
+  UNAUTHORIZED,
+}

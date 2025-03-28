@@ -4,6 +4,7 @@ import {
   CommentPostError,
   type GetCommentPost,
   GetCommentPostError,
+  DeleteCommentError,
 } from "./comment-types.js";
 
 export const commentPost = async (parameters: {
@@ -75,5 +76,40 @@ export const getCommentPosts = async (parameters: {
   return {
     comments,
     total: totalcomments,
+  };
+};
+
+export const deleteComment = async (parameters: {
+  userId: string;
+  commentId: string;
+}) => {
+  const user = await prismaClient.user.findUnique({
+    where: {
+      id: parameters.userId,
+    },
+  });
+
+  if (!user) {
+    throw DeleteCommentError.UNAUTHORIZED;
+  }
+
+  const comment = await prismaClient.comment.findUnique({
+    where: {
+      id: parameters.commentId,
+    },
+  });
+
+  if (!comment) {
+    throw DeleteCommentError.NOT_FOUND;
+  }
+
+  await prismaClient.comment.delete({
+    where: {
+      id: parameters.commentId,
+    },
+  });
+
+  return {
+    message: "Comment deleted successfully!!!",
   };
 };
